@@ -90,7 +90,7 @@ Each layer interacts with the one above and below it to ensure proper communicat
 The OSI model was introduced by the **ISO** in **1983 (ISO 7498)** as a recommended industry standard.  
 It’s not mandatory — developers aren’t required to follow it exactly — and some prefer the **TCP/IP model (DoD model)** instead.
 
----
+
 
 ## OSI Model Layers
 
@@ -160,9 +160,9 @@ When received, the destination computer **removes the headers layer by layer** u
 
 A **packet** is simply the final **PDU** containing all the headers and footers.
 
----
 
-## Example
+
+### Example
 
 When you visit **google.com**, the process goes like this:
 
@@ -180,9 +180,9 @@ In the **OSI model**, we often say one protocol *“sits on top of”* another �
 
 This describes how protocols **depend on lower layers** to perform their functions.
 
----
 
-## How Data Is Sent
+
+### How Data Is Sent
 
 When data is sent from one device to another:
 
@@ -191,9 +191,9 @@ When data is sent from one device to another:
 3. **Ethernet (Layer 2)** adds **physical (MAC) addresses**.  
 4. Finally, the **Physical Layer (Layer 1)** sends the data as **bits (0s and 1s)** across the network.
 
----
 
-## How Data Is Received
+
+### How Data Is Received
 
 When the packet reaches its destination (e.g., **Google’s web server**),  
 the process happens **in reverse** — each layer removes its own header:
@@ -205,9 +205,116 @@ the process happens **in reverse** — each layer removes its own header:
 
 The server then sends back a **TCP acknowledgment**, followed by the requested file (e.g., `index.html`).
 
----
 
-## Note
+
+### Note
 
 All packets follow this same **build-and-strip process**, but **not all packets contain application data** —  
 some may only include information from **Layer 2**, **3**, or **4** depending on their purpose.
+
+---
+
+##  Network Hardware
+
+### Hubs
+
+![Hub ](/images/Practical%20Packet%20Analysis/Chapter%201%20Packet%20Analysis%20and%20Network%20Basics/6.png)
+
+A **hub** is a simple network device with multiple RJ-45 ports, usually used to connect several computers within a small network. It operates on the **Physical Layer** of the OSI model and functions as a **repeater** — any data received on one port is broadcast to all other ports.
+
+For example, if Computer A sends data to Computer B through a 4-port hub, all four connected computers receive the packet. Only B processes it, while the others discard it after checking the MAC address. This creates unnecessary network traffic.
+
+Because hubs work in **half-duplex mode** (they can’t send and receive at the same time) and generate excess broadcast traffic, they’re rarely used in modern networks. Instead, **switches** are preferred, as they support **full-duplex communication** and send data only to the intended destination.
+
+![Hub 2 ](/images/Practical%20Packet%20Analysis/Chapter%201%20Packet%20Analysis%20and%20Network%20Basics/7.png)
+
+### Switches
+
+![ Switch ](/images/Practical%20Packet%20Analysis/Chapter%201%20Packet%20Analysis%20and%20Network%20Basics/8.png)
+
+A **switch** is similar to a hub in appearance and basic purpose—it forwards network packets—but it’s far more intelligent in how it handles traffic. Instead of broadcasting data to every port, a switch sends packets only to the device they’re meant for.
+
+Switches operate on the **Data Link Layer (Layer 2)** of the OSI model. They identify devices by their **MAC addresses** and store this information in a **CAM table** (Content Addressable Memory). When a packet arrives, the switch checks the destination MAC address and forwards it only to the correct port, reducing unnecessary traffic.
+
+Many switches, especially enterprise-grade ones like Cisco devices, are **managed switches**. These can be configured through software or web interfaces to enable or disable ports, view port statistics, modify settings, or reboot remotely.
+
+Because switches provide **full-duplex communication** and direct packet delivery, they allow multiple conversations to happen simultaneously without collisions or broadcast noise.
+
+
+![ Switch 2 ](/images/Practical%20Packet%20Analysis/Chapter%201%20Packet%20Analysis%20and%20Network%20Basics/9.png)
+
+### Routers
+
+![ Routers ](/images/Practical%20Packet%20Analysis/Chapter%201%20Packet%20Analysis%20and%20Network%20Basics/10.png)
+
+A **router** is a more advanced network device than a hub or a switch. It usually has multiple network ports and LED indicators, and it operates at **Layer 3 (the Network Layer)** of the OSI model. Routers are responsible for **forwarding packets between different networks**, a process known as **routing**.
+
+Routers use **Layer 3 addresses** (like IP addresses) to uniquely identify devices and decide how to send data to its destination. They rely on **routing protocols** to determine the best path for each packet.
+
+#### Example: Neighborhood Analogy
+
+Imagine a neighborhood with several streets:
+
+- Each street represents a **network segment**.  
+- Each house represents a **device (computer)** on that network.  
+- You can easily talk to your neighbors on the same street — just like computers within the same local network.  
+- But if you want to reach someone on another street, you must cross an intersection — this is what a **router** does, connecting different network segments.
+
+For example, if a device at **192.168.0.3** needs to communicate with another at **10.100.1.1**, the data must travel through a router that connects those two different networks.
+
+![ Routers 2 ](/images/Practical%20Packet%20Analysis/Chapter%201%20Packet%20Analysis%20and%20Network%20Basics/11.png)
+
+#### Real-World Usage
+
+- **Home networks** typically use a single router to connect all local devices to the internet.  
+- **Corporate networks** often have multiple routers connecting departments, all linking back to a central router or **Layer 3 switch**, which combines switching and routing functions.
+
+Routers are essential for managing traffic between networks, ensuring data finds the right path and reaches the correct destination efficiently.
+
+![ Routers 3 ](/images/Practical%20Packet%20Analysis/Chapter%201%20Packet%20Analysis%20and%20Network%20Basics/12.png)
+
+---
+
+## Traffic Classifications
+
+Network traffic can be classified into three main types: **broadcast**, **multicast**, and **unicast**. Each type determines how data packets are sent and who receives them.
+
+### **Broadcast Traffic**
+
+A **broadcast** packet is sent to all devices within a **network segment**, regardless of whether it’s connected through a hub or switch.  
+There are two types of broadcast traffic:
+
+- **Layer 2 Broadcast:** Uses the MAC address `FF:FF:FF:FF:FF:FF` to send data to all devices in the local network segment.  
+- **Layer 3 Broadcast:** Uses the highest IP in a subnet, such as `192.168.0.255` for a `192.168.0.x /24` network.
+
+The area where broadcast packets can reach is called the **broadcast domain** — it extends up to, but not beyond, a router.  
+Routers separate broadcast domains, preventing broadcasts from spreading across networks.
+
+**Example analogy:**  
+Think of a broadcast domain as your neighborhood street. If you stand on your porch and shout, only neighbors on your street will hear you. To reach someone on another street, you’d need a direct way to contact them — just like routing between network segments.
+
+![ Broadcast ](/images/Practical%20Packet%20Analysis/Chapter%201%20Packet%20Analysis%20and%20Network%20Basics/13.png)
+
+### **Multicast Traffic**
+
+**Multicast** allows one device to send packets to **multiple specific devices** at once, rather than everyone.  
+It’s designed to **save bandwidth** by sending a single stream that’s only duplicated when necessary.
+
+Devices that want to receive multicast traffic **join a multicast group**.  
+IP addresses in the range `224.0.0.0` to `239.255.255.255` are reserved for multicast communication.
+
+
+### **Unicast Traffic**
+
+**Unicast** is a **one-to-one** communication between two devices.  
+For example, when your computer requests a web page from a web server, it sends packets **directly** to that server — no other devices are involved.
+
+---
+
+## **Conclusion**
+
+This chapter covered the **fundamentals of network communication** — the building blocks you need to understand before diving into packet analysis or troubleshooting.  
+
+In the **next chapter**, we’ll build on these concepts and explore **more advanced network communication principles** that will deepen your understanding of how data travels through a network.
+
+If you found this useful, follow me on [LinkedIn](https://www.linkedin.com/in/0xgbreil/) for more breakdowns and network analysis content.
