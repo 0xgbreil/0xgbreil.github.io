@@ -192,3 +192,75 @@ ARP cache poisoning (aka ARP spoofing) sends fake ARP messages that advertise fo
 - Analysts: legitimate way to capture a target's packets when hardware taps or mirroring aren't available.
 
 ![ ARP cache poisoning ](/images/Practical%20Packet%20Analysis/Chapter%202%20Tapping%20into%20the%20Wire/11.png)
+
+### Using Cain & Abel to Poison ARP Caches (Windows)
+
+> **Note:** The book demonstrates the use of the tool **Cain & Abel**.  
+> I tried downloading it, but it turned out to be malicious, even in a virtual machine.  
+> Therefore, I only read about it instead of running it.
+
+**Prep / Info to collect**
+- IP of your analyzer (sniffer) machine  
+- IP of the target machine (whose traffic you want)  
+- IP of the upstream router for that target
+
+**Steps (high-level)**
+1. Install Cain & Abel on Windows (from oxid.it) and open it.  
+2. In the **Sniffer** tab:
+![ Cain & Abel1 ](/images/Practical%20Packet%20Analysis/Chapter%202%20Tapping%20into%20the%20Wire/12.png)
+   - Activate the built-in sniffer (select the correct interface).  
+   - Scan network hosts (use the MAC Address Scanner / discover hosts).  
+   ![ Cain & Abel2 ](/images/Practical%20Packet%20Analysis/Chapter%202%20Tapping%20into%20the%20Wire/13.png)
+   - The grid fills with hosts, MACs, IPs, vendors.
+3. Switch to the **APR** (ARP Poison Routing) tab.
+4. Add a poisoning entry:
+   - Click the blank area → click **+**.  
+   - In the left pane choose the **target IP**.  
+   - In the right pane choose the **upstream router IP**.  
+   - Confirm — the pair appears in the APR table.
+   ![ Cain & Abel3 ](/images/Practical%20Packet%20Analysis/Chapter%202%20Tapping%20into%20the%20Wire/14.png)
+5. Start poisoning by clicking the radiation icon. Cain & Abel becomes the middleman for traffic between target and router.
+6. Run your packet sniffer to capture traffic.  
+7. Stop poisoning by clicking the radiation icon again when finished.
+
+**Caution**
+- Don’t use ARP poisoning on high-bandwidth targets (e.g., 1 Gbps file server) if your analyzer link is slower — you’ll become the bottleneck and may cause a DoS or corrupt capture data.  
+- Asymmetric routing can avoid routing all traffic through your sniffer; see Cain & Abel docs for APR details.
+
+---
+
+## Sniffing in Routed Environments
+
+- All switched-network tapping techniques (mirroring, hubbing, taps, ARP poisoning, direct install) also apply in routed environments.
+- The main extra consideration is **sniffer placement** when troubleshooting problems across multiple network segments.
+- A device’s **broadcast domain** ends at a router. When traffic crosses multiple routers, you may need to capture traffic **on both sides** of routers to see the full conversation.
+- Example workflow: if a host on network D can't talk to hosts on network A, sniffing at the D side might show outgoing requests but not replies. Moving the sniffer to an upstream segment (e.g., network B) can reveal routing drops or misconfigurations in that router.
+
+![Sniffing in Routed  ](/images/Practical%20Packet%20Analysis/Chapter%202%20Tapping%20into%20the%20Wire/15.png)
+
+## Sniffer placement in practice
+- There are five practical capture methods to consider:
+  1. **Port mirroring** — preferred when available (no footprint, no extra packets, can be non-disruptive).
+  2. **Hubbing out** — works but may force host offline and causes collisions; obsolete hubs are slow (10 Mbps).
+  3. **Using a tap** — best for accuracy and fiber links; reliable but can be costly.
+  4. **ARP cache poisoning** — effective when other options aren't available but injects traffic and is "sloppy".
+  5. **Direct install** — install sniffer on the host itself; OK for testing but can be unreliable for real captures.
+- Use a **network map / diagram** to visualize placement — it's the best way to decide where to sniff.
+- Be stealthy and avoid contaminating captured traffic; collect only what's needed and minimize footprint.
+
+![Sniffer placement in practice ](/images/Practical%20Packet%20Analysis/Chapter%202%20Tapping%20into%20the%20Wire/16.png)
+
+### Quick guideline table (summary)
+- **Port mirroring:** usually preferred.
+- **Hubbing out:** okay if host can be offline; unreliable for modern speeds.
+- **Tap:** best for performance/fiber; may be costly.
+- **ARP poisoning:** injects packets; use only when necessary.
+- **Direct install:** best for lab/test; risk of inaccurate captures for live troubleshooting.
+
+---
+
+## Conclusion
+
+In this post we covered how to capture network traffic—from enabling a NIC’s **promiscuous mode** to several tapping methods used on switched and routed networks: **port mirroring**, **hubbing out**, **network taps (aggregated & non-aggregated)**, **ARP cache poisoning**, and **direct install**. For each method we discussed how it works, its pros and cons, and practical considerations (sniffer placement, performance/bandwidth limits, and stealth).
+
+If you have any questions, feedback, or experiences to share, feel free to reach out on LinkedIn: [Mohamed Gbreil](https://www.linkedin.com/in/0xgbreil/)
