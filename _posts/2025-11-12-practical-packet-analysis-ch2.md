@@ -192,26 +192,3 @@ ARP cache poisoning (aka ARP spoofing) sends fake ARP messages that advertise fo
 - Analysts: legitimate way to capture a target's packets when hardware taps or mirroring aren't available.
 
 ![ ARP cache poisoning ](/images/Practical%20Packet%20Analysis/Chapter%202%20Tapping%20into%20the%20Wire/11.png)
-
-### Using Cain & Abel to Poison ARP Caches (Windows)
-
-**Prep / Info to collect**
-- IP of your analyzer (sniffer) machine  
-- IP of the target machine (whose traffic you want)  
-- IP of the upstream router for that target
-
-**Steps (high-level)**
-1. Install Cain & Abel on Windows (from oxid.it) and open it.  
-2. In the **Sniffer** tab:
-   - Activate the built-in sniffer (select the correct interface).  
-   - Scan network hosts (use the MAC Address Scanner / discover hosts).  
-   - The grid fills with hosts, MACs, IPs, vendors.
-3. Switch to the **APR** (ARP Poison Routing) tab.
-4. Add a poisoning entry:
-   - Click the blank area → click **+**.  
-   - In the left pane choose the **target IP**.  
-   - In the right pane choose the **upstream router IP**.  
-   - Confirm — the pair appears in the APR table.
-5. Start poisoning by clicking the radiation icon. Cain & Abel becomes the middleman for traffic between target and router.
-6. Run your packet sniffer to capture traffic.  
-7. Stop poisoning by clicking the radiation icon again when finished.
